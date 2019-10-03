@@ -34,4 +34,12 @@ public class ArmMotor extends EV3LargeRegulatedMotor {
         rotateTo(10);
     }
 
+    public void lock() {
+        rotateTo(180);
+    }
+
+    public void release() {
+        rotateTo(10);
+    }
+
 }

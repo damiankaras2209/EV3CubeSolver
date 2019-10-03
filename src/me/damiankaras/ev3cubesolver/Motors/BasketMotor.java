@@ -20,13 +20,17 @@ public class BasketMotor extends EV3MediumRegulatedMotor {
         resetTachoCount();
     }
 
-    public void rotate(int dir, int deg, boolean immidiateReturn) {
+    public void rotate(int dir) {
+        rotate(dir, 90, false);
+    }
+
+    public void rotate(int dir, int deg, boolean immediateReturn) {
         switch (dir) {
             case CW:
-                rotate(deg*GEAR_RATIO, immidiateReturn);
+                rotate(deg*GEAR_RATIO, immediateReturn);
                 break;
             case CCW:
-                rotate(-deg*GEAR_RATIO, immidiateReturn);
+                rotate(-deg*GEAR_RATIO, immediateReturn);
                 break;
         }
     }

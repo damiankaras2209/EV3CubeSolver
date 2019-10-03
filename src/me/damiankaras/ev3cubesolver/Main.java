@@ -21,6 +21,15 @@ public class Main {
 
     public static void main(String[] args) {
 
+
+
+
+
+        Network net = Network.getInstance();
+
+
+
+
         motorManager = MotorManager.getInstance();
 
         basketMotor = motorManager.getBasketMotor();
@@ -31,8 +40,14 @@ public class Main {
         armMotor.resetPosition();
 //        basketMotor.resetPosition();
 
+        Cube cube = new Cube();
+        final ColorScanner colorScanner = new ColorScanner(cube);
+        final Solver solver = new Solver();
 
-        final ColorScanner colorScanner = new ColorScanner();
+
+
+
+
 
 //
 //        basketMotor.setSpeed(360);
@@ -48,16 +63,16 @@ public class Main {
 //
 //
 //        System.out.println("Time: " + (System.currentTimeMillis() - t));
-
-
+//
+//
 //        for(int i=0; i<10000; i++) {
 //            System.out.println(basketMotor.getTacho());
 //        }
-
-
-
-
-
+//
+//
+//
+//
+//
 //        Button.LEFT.addKeyListener(new KeyListener() {
 //            @Override
 //            public void keyPressed(Key key) {
@@ -71,18 +86,18 @@ public class Main {
 //
 //            }
 //        });
-////        Button.RIGHT.addKeyListener(new KeyListener() {
-////            @Override
-////            public void keyPressed(Key key) {
-////                Motor.C.backward();
-////            }
-////
-////            @Override
-////            public void keyReleased(Key key) {
-////                Motor.C.stop();
-////                System.out.println(Motor.C.getTachoCount());
-////            }
-////        });
+//        Button.RIGHT.addKeyListener(new KeyListener() {
+//            @Override
+//            public void keyPressed(Key key) {
+//                Motor.C.backward();
+//            }
+//
+//            @Override
+//            public void keyReleased(Key key) {
+//                Motor.C.stop();
+//                System.out.println(Motor.C.getTachoCount());
+//            }
+//        });
         Button.RIGHT.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(Key key) {
@@ -144,7 +159,13 @@ public class Main {
             Button.ENTER.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(Key key) {
-                colorScanner.scan();
+
+                float[][] scan = colorScanner.scan();
+                System.out.println("Interpreting scan");
+//                String cube = solver.generateCube(scan);
+//                System.out.println("Searching solution for " + cube);
+                solver.solve(scan);
+
             }
             @Override
             public void keyReleased(Key key) {
@@ -164,13 +185,7 @@ public class Main {
             }
         });
 
-        while (true) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        Button.ESCAPE.waitForPress();
     }
 
 
