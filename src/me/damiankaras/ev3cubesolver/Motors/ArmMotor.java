@@ -26,7 +26,7 @@ public class ArmMotor extends EV3LargeRegulatedMotor {
         }
 
         setStallThreshold(20, 500);
-        setSpeed(500);
+        setSpeed(450);
     }
 
     public void turnCube() {
@@ -35,7 +35,7 @@ public class ArmMotor extends EV3LargeRegulatedMotor {
     }
 
     public void lock() {
-        rotateTo(180);
+        rotateTo(115);
     }
 
     public void release() {

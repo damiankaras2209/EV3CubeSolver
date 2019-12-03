@@ -2,23 +2,42 @@ package me.damiankaras.ev3cubesolver.Motors;
 
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
 import lejos.hardware.port.MotorPort;
-import lejos.utility.Delay;
 
 public class BasketMotor extends EV3MediumRegulatedMotor {
 
+    public static final int DEFAULT_SPEED = 700;
+
     BasketMotor() {
         super(MotorPort.B);
+        setSpeed(DEFAULT_SPEED);
     }
 
     public static final int CW = 0;
     public static final int CCW = 1;
-    public static final int GEAR_RATIO = 3;
+    private static final int GEAR_RATIO = 3;
 
     public void resetPosition() {
-        rotate(90);
-        rotate(-90);
-        resetTachoCount();
+
+        int x = getPos()%90;
+        int dir, deg;
+
+        if(x >= 0) {
+            x = Math.abs(x);
+            dir = x > 45 ? CW : CCW;
+            deg = x > 45 ? 90-x : x;
+        } else {
+            x = Math.abs(x);
+            dir = x > 45 ? CCW : CW;
+            deg = x > 45 ? 90-x : x;
+        }
+
+        setSpeed(200);
+        rotate(dir, deg, false);
+        setSpeed(DEFAULT_SPEED);
+        resetTacho();
     }
+
+
 
     public void rotate(int dir) {
         rotate(dir, 90, false);
@@ -46,24 +65,4 @@ public class BasketMotor extends EV3MediumRegulatedMotor {
     public int getPos() {
         return (int)(getPosition()/GEAR_RATIO + 0.5f);
     }
-
-    public void rotateAndExecute(int degree, int executeEvery, int positionOffset , Runnable runnable) {
-        resetTachoCount();
-        int nextExecution = 0;
-
-        rotate(CW, 360, true);
-
-        while(getPos() < degree) {
-            new Thread(runnable).start();
-            while(getPos() + positionOffset < nextExecution) {
-
-                Delay.msDelay(1);
-                System.out.println("Tacho: " + getPos());
-            }
-            nextExecution += executeEvery;
-        }
-        System.out.println("End");
-//        stop();
-    }
-
 }

@@ -23,30 +23,25 @@ public class Main {
 
 
 
+        System.out.println("Hi");
 
-
+        Controller controller = Controller.getInstance();
         Network net = Network.getInstance();
 
 
 
 
-        motorManager = MotorManager.getInstance();
-
-        basketMotor = motorManager.getBasketMotor();
-        armMotor = motorManager.getArmMotor();
-        sensorMotor = motorManager.getSensorMotor();
-
-        sensorMotor.resetPosition();
-        armMotor.resetPosition();
+//        motorManager = MotorManager.getInstance();
+//
+//        basketMotor = motorManager.getBasketMotor();
+//        armMotor = motorManager.getArmMotor();
+//        sensorMotor = motorManager.getSensorMotor();
+//
+//        sensorMotor.resetPosition();
+//        armMotor.resetPosition();
 //        basketMotor.resetPosition();
 
-        Cube cube = new Cube();
-        final ColorScanner colorScanner = new ColorScanner(cube);
-        final Solver solver = new Solver();
-
-
-
-
+//        Cube cube = new Cube();
 
 
 //
@@ -98,92 +93,90 @@ public class Main {
 //                System.out.println(Motor.C.getTachoCount());
 //            }
 //        });
-        Button.RIGHT.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(Key key) {
-
-                sensorMotor.setPosition(SensorMotor.CENTER, false);
-            }
-
-            @Override
-            public void keyReleased(Key key) {
-
-            }
-        });
-
-
-        Button.ENTER.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(Key key) {
-                sensorMotor.setPosition(SensorMotor.BACKED_OFF, false);
-            }
-            @Override
-            public void keyReleased(Key key) {
-
-            }
-        });
-        Button.UP.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(Key key) {
-                sensorMotor.setPosition(SensorMotor.CORNER, false);
-            }
-            @Override
-            public void keyReleased(Key key) {
-
-            }
-        });
-
-        Button.DOWN.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(Key key) {
-                sensorMotor.setPosition(SensorMotor.EDGE, false);
-            }
-            @Override
-            public void keyReleased(Key key) {
-
-            }
-        });
-
-        Button.ESCAPE.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(Key key) {
-//              colorScanner.scan();
-                sensorMotor.setPosition(SensorMotor.IDLE, false);
-            }
-            @Override
-            public void keyReleased(Key key) {
-            }
-        });
-
-
-            Button.ENTER.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(Key key) {
-
-                float[][] scan = colorScanner.scan();
-                System.out.println("Interpreting scan");
-//                String cube = solver.generateCube(scan);
-//                System.out.println("Searching solution for " + cube);
-                solver.solve(scan);
-
-            }
-            @Override
-            public void keyReleased(Key key) {
-
-            }
-        });
-
-
-            Button.LEFT.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(Key key) {
-                armMotor.turnCube();
-            }
-            @Override
-            public void keyReleased(Key key) {
-
-            }
-        });
+//        Button.RIGHT.addKeyListener(new KeyListener() {
+//            @Override
+//            public void keyPressed(Key key) {
+//
+//                sensorMotor.setPosition(SensorMotor.CENTER, false);
+//            }
+//
+//            @Override
+//            public void keyReleased(Key key) {
+//
+//            }
+//        });
+//
+//
+//        Button.ENTER.addKeyListener(new KeyListener() {
+//            @Override
+//            public void keyPressed(Key key) {
+//                sensorMotor.setPosition(SensorMotor.BACKED_OFF, false);
+//            }
+//            @Override
+//            public void keyReleased(Key key) {
+//
+//            }
+//        });
+//        Button.UP.addKeyListener(new KeyListener() {
+//            @Override
+//            public void keyPressed(Key key) {
+//                sensorMotor.setPosition(SensorMotor.CORNER, false);
+//            }
+//            @Override
+//            public void keyReleased(Key key) {
+//
+//            }
+//        });
+//
+//        Button.DOWN.addKeyListener(new KeyListener() {
+//            @Override
+//            public void keyPressed(Key key) {
+//                sensorMotor.setPosition(SensorMotor.EDGE, false);
+//            }
+//            @Override
+//            public void keyReleased(Key key) {
+//
+//            }
+//        });
+//
+//        Button.ESCAPE.addKeyListener(new KeyListener() {
+//            @Override
+//            public void keyPressed(Key key) {
+////              colorScanner.scan();
+//                sensorMotor.setPosition(SensorMotor.IDLE, false);
+//            }
+//            @Override
+//            public void keyReleased(Key key) {
+//            }
+//        });
+//
+//
+//            Button.ENTER.addKeyListener(new KeyListener() {
+//            @Override
+//            public void keyPressed(Key key) {
+//
+//                Cube cube = new Cube();
+//                cube.scan();
+//                cube.solve();
+//
+//            }
+//            @Override
+//            public void keyReleased(Key key) {
+//
+//            }
+//        });
+//
+//
+//            Button.LEFT.addKeyListener(new KeyListener() {
+//            @Override
+//            public void keyPressed(Key key) {
+//                Logger.logAndSend("RR");
+//            }
+//            @Override
+//            public void keyReleased(Key key) {
+//
+//            }
+//        });
 
         Button.ESCAPE.waitForPress();
     }

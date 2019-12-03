@@ -11,17 +11,15 @@ import java.net.Socket;
 
 public class Network {
 
-    static final int TYPE_CUBE = 0;
-    static final int TYPE_COLOR = 1;
-
     private static Network instance = new Network();
-
     public static Network getInstance() {
         return instance;
     }
 
     ServerSocket serverSocket = null;
     PrintWriter out = null;
+
+    Runnable onConnect;
 
     Network() {
 
@@ -55,6 +53,7 @@ public class Network {
                     try {
 
                         out = new PrintWriter(clientSocket.getOutputStream(), true);
+                        if(onConnect != null) onConnect.run();
                         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
                         String inputLine, outputLine;
@@ -65,7 +64,9 @@ public class Network {
                         while ((inputLine = in.readLine()) != null) {
 
                             inputLine = inputLine.trim();
-                            processReceived(inputLine);
+
+                            System.out.println("Received: " + inputLine);
+                            NetworkData.getInstance().interpret(inputLine);
 
 //                            outputLine = Integer.toString(Integer.parseInt(inputLine) + 1);
 //                            out.println(outputLine);
@@ -96,19 +97,19 @@ public class Network {
         }).start();
     }
 
-    void send(int type, String str) {
+    void send(String prefix, String str) {
         if(out != null) {
-            System.out.println("Sending: " + type + "/" + str);
-            out.println(type + "/" + str);
+            System.out.println("Sending: " + prefix + "/" + str);
+            out.println(prefix + "/" + str);
         }
         else {
             System.out.println("No client to send data to");
         }
     }
 
-    void processReceived(String str) {
-        System.out.println("Received: " + str);
-    }
+    void setOnConnect(Runnable r) {
+        onConnect = r;
+    };
 
     void closeServerSocket() {
         try {
