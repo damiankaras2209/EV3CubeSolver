@@ -55,9 +55,9 @@ class CubieCube {
     /**
      *
      */
-    static char[] SymStateTwist;// = new char[cs.min2phase.CoordCube.N_TWIST_SYM];
-    static char[] SymStateFlip;// = new char[cs.min2phase.CoordCube.N_FLIP_SYM];
-    static char[] SymStatePerm;// = new char[cs.min2phase.CoordCube.N_PERM_SYM];
+    static char[] SymStateTwist;// = new char[CoordCube.N_TWIST_SYM];
+    static char[] SymStateFlip;// = new char[CoordCube.N_FLIP_SYM];
+    static char[] SymStatePerm;// = new char[CoordCube.N_PERM_SYM];
 
     static CubieCube urf1 = new CubieCube(2531, 1373, 67026819, 1367);
     static CubieCube urf2 = new CubieCube(2089, 1906, 322752913, 2040);
