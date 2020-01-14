@@ -3,6 +3,8 @@ package me.damiankaras.ev3cubesolver.brick;
 
 import cs.min2phase.Search;
 
+import java.util.Arrays;
+
 public class Solver {
 
     private final static short R = 0;
@@ -37,6 +39,8 @@ public class Solver {
 
         float diff;
 
+        int[] occurrences = new int[6];
+
         switch(method) {
             case METHOD_CLOSEST_CENTER:
 
@@ -56,12 +60,16 @@ public class Solver {
 
                     color[i] = closestInd;
 
+                    occurrences[closestInd]++;
+
 //            System.out.print(color[i]);
 
                 }
 
                 break;
             case METHOD_CLOSEST_STATIC:
+
+
 
                 for(int i=0; i<54; i++) {
 
@@ -79,6 +87,8 @@ public class Solver {
 
                     color[i] = closestInd;
 
+                    occurrences[closestInd]++;
+
 //            System.out.print(color[i]);
 
                 }
@@ -86,13 +96,44 @@ public class Solver {
                 break;
         }
 
-//        System.out.print("\n");
+        System.out.println(Arrays.toString(occurrences));
 
+        int completeColors = 0;
+        int over = -1;
+        int under = -1;
+        for(int i=0; i<6; i++) {
+            if(occurrences[i] == 9) completeColors++;
+            else if(occurrences[i] > 9) over = i;
+            else under = i;
+        }
 
+        if(completeColors == 4) {
 
-        //solving order
+            Search search = new Search();
 
+//            int lastChanged = 0;
+//            for(int i=0; i<10; i++) {
+                for(int j=0; j<54; j++) {
+                    if(color[j] == over) {
+                        int[] colorCopy = Arrays.copyOf(color, color.length);
+                        colorCopy[j] = under;
+                        int res = search.verify(toSolverString(colorCopy));
+//                        System.out.println("Verify: " + res);
+                        if(res == 0) {
+                            Logger.logAndSend(false, "altered scan...   ");
+                            return toSolverString(colorCopy);
+                        }
 
+                    }
+                }
+//            }
+
+        }
+
+        return toSolverString(color);
+    }
+
+    private String toSolverString(int[] color) {
         StringBuffer s = new StringBuffer(54);
 
         for (int i = 0; i<54; i++)
@@ -188,7 +229,6 @@ public class Solver {
 
             }
         }
-
         return s.toString();
     }
 
@@ -224,7 +264,16 @@ public class Solver {
     }
 
     String solve(float[][] raw) {
+
+//        if(Network.getInstance().isClientConnected()) {
+//            Network.getInstance().send(NetworkData.DATATYPE_COMMAND, );
+//        }
+//
         Logger.logAndSend("Solving");
+
+
+
+
         Search search = new Search();
 
 
@@ -238,22 +287,16 @@ public class Solver {
 
         String out;
 
-        Logger.logAndSend(false, "   Raw hue, closest static...   ");
-        out = search.solution(generateCube(hueRaw, METHOD_CLOSEST_STATIC), 21, 100, 0, mask);
-        if(!out.contains("Error")) {
-            Logger.logAndSend("success");
-            return out;
-        }
-        Logger.logAndSend("fail");
-        Logger.logAndSend(false, "   Raw hue, closest center...   ");
-        out = search.solution(generateCube(hueRaw, METHOD_CLOSEST_CENTER), 21, 100, 0, mask);
-        if(!out.contains("Error")) {
-            Logger.logAndSend("success");
-            return out;
-        }
-        Logger.logAndSend("fail");
 
         float[] hueCorrected = calculateHue(raw, 0.95f, 1, 1);
+
+        Logger.logAndSend(false, "   Corrected hue, closest center...   ");
+        out = search.solution(generateCube(hueCorrected, METHOD_CLOSEST_CENTER), 21, 100, 0, mask);
+        if(!out.contains("Error")) {
+            Logger.logAndSend("success");
+            return out;
+        }
+        Logger.logAndSend("fail");
 
         Logger.logAndSend(false, "   Corrected hue, closest static...   ");
         out = search.solution(generateCube(hueCorrected, METHOD_CLOSEST_STATIC), 21, 100, 0, mask);
@@ -262,13 +305,27 @@ public class Solver {
             return out;
         }
         Logger.logAndSend("fail");
-        Logger.logAndSend(false, "   Corrected hue, closest center...   ");
-        out = search.solution(generateCube(hueCorrected, METHOD_CLOSEST_CENTER), 21, 100, 0, mask);
+
+
+        Logger.logAndSend(false, "   Raw hue, closest center...   ");
+        out = search.solution(generateCube(hueRaw, METHOD_CLOSEST_CENTER), 21, 100, 0, mask);
         if(!out.contains("Error")) {
             Logger.logAndSend("success");
             return out;
         }
         Logger.logAndSend("fail");
+
+        Logger.logAndSend(false, "   Raw hue, closest static...   ");
+        out = search.solution(generateCube(hueRaw, METHOD_CLOSEST_STATIC), 21, 100, 0, mask);
+        if(!out.contains("Error")) {
+            Logger.logAndSend("success");
+            return out;
+        }
+        Logger.logAndSend("fail");
+
+
+
+
         return null;
     }
 

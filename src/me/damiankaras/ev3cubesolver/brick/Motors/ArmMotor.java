@@ -29,9 +29,13 @@ public class ArmMotor extends EV3LargeRegulatedMotor {
         setSpeed(500);
     }
 
-    public void turnCube() {
+    public void turnCube(boolean lockAtEnd) {
         rotateTo(180);
-        rotateTo(10);
+        rotateTo(lockAtEnd ? 115 : 10);
+    }
+
+    public void turnCube() {
+        turnCube(false);
     }
 
     public void lock() {

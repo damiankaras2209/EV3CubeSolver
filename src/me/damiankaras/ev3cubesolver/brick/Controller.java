@@ -5,6 +5,8 @@ import me.damiankaras.ev3cubesolver.brick.Motors.BasketMotor;
 import me.damiankaras.ev3cubesolver.brick.Motors.MotorManager;
 import me.damiankaras.ev3cubesolver.brick.Motors.SensorMotor;
 
+import java.util.ArrayList;
+
 public class Controller {
 
     private static final Controller instance = new Controller();
@@ -30,6 +32,7 @@ public class Controller {
 
         sensorMotor.resetPosition();
         armMotor.resetPosition();
+//        basketMotor.resetPosition();
         cube = new Cube();
 
         net.setOnConnect(new Runnable() {
@@ -77,6 +80,12 @@ public class Controller {
                 break;
             case "rotateZ":
                 cube.rotateZ();
+                break;
+            case "testMove":
+                ArrayList<String> moves = new ArrayList<>();
+                moves.add("R");
+                moves.add("U");
+                cube.executeMoves(moves);
                 break;
         }
     }

@@ -89,13 +89,9 @@ public class Cube {
 
                 String solution = solver.solve(raw);
 
+//                String solution = solver.solve(TestScans.INORRECT_SCAN);
+
                 if(solution != null) {
-
-                    solutionTime = System.currentTimeMillis();
-                    Logger.logAndSend(String.format("Solution found in %.2fs. Total time: %.2fs",
-                            (float) (solutionTime - scanTime) / 1000,
-                            (float) (solutionTime - startTime) / 1000));
-
 
                     solution = solution.substring(0, solution.indexOf('('));
                     int length = solution.length() / 3 + 1;
@@ -104,10 +100,14 @@ public class Cube {
                     for (int i = 0; i < length - 1; i++)
                         moves.add(solution.substring(i * 3, (i + 1) * 3).trim());
 
-                    while (moves.size() > 0) {
-                        move(moves.get(0));
-                        moves.remove(0);
-                    }
+                    solutionTime = System.currentTimeMillis();
+                    Logger.logAndSend(String.format("Solution found in %.2fs (%d moves). Total time: %.2fs",
+                            (float) (solutionTime - scanTime) / 1000,
+                            moves.size(),
+                            (float) (solutionTime - startTime) / 1000));
+
+
+                    executeMoves(moves);
 
                     Logger.logAndSend(String.format("Solve completed in %.2fs. Total time: %.2fs",
                             (float) (System.currentTimeMillis() - solutionTime) / 1000,
@@ -127,7 +127,7 @@ public class Cube {
 
     void scan() {
         isScanning = false;
-        Logger.logAndSend("Scanning started");
+        Logger.logAndSend("\n\nScanning started");
         colorScanner.scan();
         scanTime = System.currentTimeMillis();
         Logger.logAndSend(String.format("Scanning completed in %.2fs", (float)(scanTime - startTime)/1000));
@@ -275,6 +275,13 @@ public class Cube {
 
     }
 
+    public void executeMoves(ArrayList<String> moves) {
+        while (moves.size() > 0) {
+            move(moves.get(0));
+            moves.remove(0);
+        }
+    }
+
     private void move(String move) {
 
         System.out.println("Move: " + move);
@@ -288,22 +295,22 @@ public class Cube {
         switch (x) {
             case 0:
                 rotateZ();
-                rotateZ();
+                rotateZ(true);
                 break;
             case 1:
-                rotateZ();
+                rotateZ(true);
                 break;
             case 2:
                 rotateY(CW, 1, false);
-                rotateZ();
+                rotateZ(true);
                 break;
             case 3:
                 rotateY(CW, 2, false);
-                rotateZ();
+                rotateZ(true);
                 break;
             case 4:
                 rotateY(CCW, 1, false);
-                rotateZ();
+                rotateZ(true);
                 break;
         }
 
@@ -401,8 +408,12 @@ public class Cube {
     }
 
     public void rotateZ() {
+        rotateZ(false);
+    }
 
-        armMotor.turnCube();
+    public void rotateZ(boolean lockAtEnd) {
+
+        armMotor.turnCube(lockAtEnd);
 
 
         StringBuilder  facesBuilder = new StringBuilder(faces);

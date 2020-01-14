@@ -95,6 +95,10 @@ public class Network {
         }).start();
     }
 
+    public boolean isClientConnected() {
+        return out != null;
+    }
+
     void send(String prefix, String str) {
         if(out != null) {
             System.out.println("Sending: " + prefix + "/" + str);
