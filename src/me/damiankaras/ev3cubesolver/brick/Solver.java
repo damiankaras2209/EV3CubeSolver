@@ -29,74 +29,95 @@ public class Solver {
     public Solver() {
     }
 
-    String generateCube(float[] hue, int method) {
+    String generateCube(float[][] raw) {
 
-
+        float[][] modifiers = {{0.95f,1f,1f}, {1f,1f,1f}};
         int[] color = new int[54];
 
         float closestValue;
         int closestInd;
-
         float diff;
+        int[] occurrences;
+        float[] hue;
 
-        int[] occurrences = new int[6];
+        int[] corrected;
 
-        switch(method) {
-            case METHOD_CLOSEST_CENTER:
+        for(int k=0; k<modifiers.length; k++) {
 
-                for(int i=0; i<54; i++) {
+            hue = calculateHue(raw, modifiers[k][0], modifiers[k][1], modifiers[k][2]);
 
-                    closestValue = 360;
-                    closestInd = 0;
+            occurrences = new int[6];
 
-                    for(int j=0; j<6; j++) {
-                        diff = Math.abs(hue[i] - hue[j * 9]);
+            Logger.logAndSend(String.format("   (%.2f, %.2f, %.2f) closest center...   ",
+                    modifiers[k][0],
+                    modifiers[k][1],
+                    modifiers[k][2]));
 
-                        if(diff < closestValue) {
-                            closestValue = diff;
-                            closestInd = j;
-                        }
+            for (int i = 0; i < 54; i++) {
+
+                closestValue = 360;
+                closestInd = 0;
+
+                for (int j = 0; j < 6; j++) {
+                    diff = Math.abs(hue[i] - hue[j * 9]);
+
+                    if (diff < closestValue) {
+                        closestValue = diff;
+                        closestInd = j;
                     }
-
-                    color[i] = closestInd;
-
-                    occurrences[closestInd]++;
-
-//            System.out.print(color[i]);
-
                 }
 
-                break;
-            case METHOD_CLOSEST_STATIC:
+                color[i] = closestInd;
+
+                occurrences[closestInd]++;
+            }
+
+            if ((corrected = verify(color, occurrences)) != null)
+                return toSolverString(corrected);
 
 
+            occurrences = new int[6];
 
-                for(int i=0; i<54; i++) {
+            Logger.logAndSend(String.format("   (%.2f, %.2f, %.2f) closest static...   ",
+                    modifiers[k][0],
+                    modifiers[k][1],
+                    modifiers[k][2]));
 
-                    closestValue = 360;
-                    closestInd = 0;
+            for (int i = 0; i < 54; i++) {
 
-                    for(int j=0; j<6; j++) {
-                        diff = Math.abs(hue[i] - Hue.values()[j].getHue());
+                closestValue = 360;
+                closestInd = 0;
 
-                        if(diff < closestValue) {
-                            closestValue = diff;
-                            closestInd = j;
-                        }
+                for (int j = 0; j < 6; j++) {
+                    diff = Math.abs(hue[i] - Hue.values()[j].getHue());
+
+                    if (diff < closestValue) {
+                        closestValue = diff;
+                        closestInd = j;
                     }
-
-                    color[i] = closestInd;
-
-                    occurrences[closestInd]++;
-
-//            System.out.print(color[i]);
-
                 }
 
-                break;
+                color[i] = closestInd;
+
+                occurrences[closestInd]++;
+
+            }
+
+            if ((corrected = verify(color, occurrences)) != null)
+                return toSolverString(corrected);
+
         }
 
-        System.out.println(Arrays.toString(occurrences));
+        return null;
+
+    }
+
+    private int[] verify(int[] color, int[] occurrences) {
+
+        Search search = new Search();
+
+        if(search.verify(toSolverString(color)) == 0)
+            return color;
 
         int completeColors = 0;
         int over = -1;
@@ -109,28 +130,22 @@ public class Solver {
 
         if(completeColors == 4) {
 
-            Search search = new Search();
 
-//            int lastChanged = 0;
-//            for(int i=0; i<10; i++) {
-                for(int j=0; j<54; j++) {
-                    if(color[j] == over) {
-                        int[] colorCopy = Arrays.copyOf(color, color.length);
-                        colorCopy[j] = under;
-                        int res = search.verify(toSolverString(colorCopy));
-//                        System.out.println("Verify: " + res);
-                        if(res == 0) {
-                            Logger.logAndSend(false, "altered scan...   ");
-                            return toSolverString(colorCopy);
-                        }
 
+            for(int j=0; j<54; j++) {
+                if(color[j] == over) {
+                    int[] colorCopy = Arrays.copyOf(color, color.length);
+                    colorCopy[j] = under;
+                    int res = search.verify(toSolverString(colorCopy));
+                    System.out.println(j + " = " + res);
+                    if(res == 0) {
+                        Logger.logAndSend(false, "altered scan...   ");
+                        return colorCopy;
                     }
                 }
-//            }
-
+            }
         }
-
-        return toSolverString(color);
+        return null;
     }
 
     private String toSolverString(int[] color) {
@@ -265,65 +280,32 @@ public class Solver {
 
     String solve(float[][] raw) {
 
-//        if(Network.getInstance().isClientConnected()) {
+        if(!Network.getInstance().isClientConnected()) {
 //            Network.getInstance().send(NetworkData.DATATYPE_COMMAND, );
-//        }
-//
-        Logger.logAndSend("Solving");
+
+        } else {
+
+            Logger.logAndSend("Solving");
+
+            Search search = new Search();
 
 
+            int mask = 0;
+            mask |= false ? Search.USE_SEPARATOR : 0;
+            mask |= false ? Search.INVERSE_SOLUTION : 0;
+            mask |= true ? Search.APPEND_LENGTH : 0;
+
+            String out;
 
 
-        Search search = new Search();
+            out = search.solution(generateCube(raw), 21, 100, 0, mask);
+            if (!out.contains("Error")) {
+                Logger.logAndSend("success");
+                return out;
+            }
+            Logger.logAndSend("fail");
 
-
-        int mask = 0;
-        mask |= false ? Search.USE_SEPARATOR : 0;
-        mask |= false ? Search.INVERSE_SOLUTION : 0;
-        mask |= true ? Search.APPEND_LENGTH : 0;
-
-        float[] hueRaw = calculateHue(raw);
-
-
-        String out;
-
-
-        float[] hueCorrected = calculateHue(raw, 0.95f, 1, 1);
-
-        Logger.logAndSend(false, "   Corrected hue, closest center...   ");
-        out = search.solution(generateCube(hueCorrected, METHOD_CLOSEST_CENTER), 21, 100, 0, mask);
-        if(!out.contains("Error")) {
-            Logger.logAndSend("success");
-            return out;
         }
-        Logger.logAndSend("fail");
-
-        Logger.logAndSend(false, "   Corrected hue, closest static...   ");
-        out = search.solution(generateCube(hueCorrected, METHOD_CLOSEST_STATIC), 21, 100, 0, mask);
-        if(!out.contains("Error")) {
-            Logger.logAndSend("success");
-            return out;
-        }
-        Logger.logAndSend("fail");
-
-
-        Logger.logAndSend(false, "   Raw hue, closest center...   ");
-        out = search.solution(generateCube(hueRaw, METHOD_CLOSEST_CENTER), 21, 100, 0, mask);
-        if(!out.contains("Error")) {
-            Logger.logAndSend("success");
-            return out;
-        }
-        Logger.logAndSend("fail");
-
-        Logger.logAndSend(false, "   Raw hue, closest static...   ");
-        out = search.solution(generateCube(hueRaw, METHOD_CLOSEST_STATIC), 21, 100, 0, mask);
-        if(!out.contains("Error")) {
-            Logger.logAndSend("success");
-            return out;
-        }
-        Logger.logAndSend("fail");
-
-
 
 
         return null;
