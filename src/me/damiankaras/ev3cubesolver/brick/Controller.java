@@ -83,10 +83,15 @@ public class Controller {
                 break;
             case "testMove":
                 ArrayList<String> moves = new ArrayList<>();
-                moves.add("R");
-                moves.add("U");
+                moves.add("B");
+                moves.add("R'");
+                moves.add("U'");
+                moves.add("L");
+                moves.add("F2");
                 cube.executeMoves(moves);
                 break;
+            case "fillSolved":
+                cube.fillSolved();
         }
     }
 

@@ -28,7 +28,7 @@ public class Cube {
     private long solutionTime;
 
     private boolean isSolving = false;
-    private boolean isScanning = true;
+    private boolean isScanning = false;
 
     Cube() {
         raw = new float[54][3];
@@ -45,6 +45,25 @@ public class Cube {
         sensorMotor = motorManager.getSensorMotor();
 
         colorScanner = new ColorScanner(this);
+    }
+
+    void fillSolved() {
+        StringBuilder s = new StringBuilder(54);
+        String str = "WBRYGO";
+        for (int i=0; i<6; i++)
+            for(int j=0; j<9; j++)
+                s.append(str.charAt(i));
+        display = s.toString();
+        faces = "ULFRBD";
+        sendCube();
+    }
+
+    void fillClean() {
+        StringBuilder s = new StringBuilder(54);
+        for (int i=0; i<54; i++)
+            s.append('-');
+        display = s.toString();
+        sendCube();
     }
 
     void close() {
@@ -79,7 +98,7 @@ public class Cube {
 
         isSolving = true;
 
-        final Solver solver = new Solver();
+        final Solver solver = new Solver(this);
 
         new Thread(new Runnable() {
             @Override
@@ -87,7 +106,14 @@ public class Cube {
 
                 scan();
 
-                String solution = solver.solve(raw);
+                String solverString = solver.verifyAndFix(raw);
+                String solution = null;
+
+                if(solverString != null)
+                    solution = solver.solve(solverString);
+                else
+                    Logger.logAndSend("fail");
+
 
 //                String solution = solver.solve(TestScans.INORRECT_SCAN);
 
@@ -112,6 +138,8 @@ public class Cube {
                     Logger.logAndSend(String.format("Solve completed in %.2fs. Total time: %.2fs",
                             (float) (System.currentTimeMillis() - solutionTime) / 1000,
                             (float) (System.currentTimeMillis() - startTime) / 1000));
+
+                    //rotateBottomWall(CW, 4);
                 } else {
                     Logger.logAndSend("All methods failed");
                 }
@@ -126,7 +154,8 @@ public class Cube {
     }
 
     void scan() {
-        isScanning = false;
+        fillClean();
+        isScanning = true;
         Logger.logAndSend("\n\nScanning started");
         colorScanner.scan();
         scanTime = System.currentTimeMillis();
@@ -137,14 +166,14 @@ public class Cube {
     void setRaw(int i, float[] raw) {
             this.raw[i] = raw;
 //            updateHue(i);
-//            updateDisplay(i);
+            predictColor(i);
     }
 
 //    public float[] getHue() {
 //        return hue;
 //    }
 
-    private void updateDisplay(int k) {
+    private void predictColor(int k) {
 
         float hue;
         float maxSubMin;
@@ -319,7 +348,7 @@ public class Cube {
     }
 
     void sendCube() {
-        Network.getInstance().send(NetworkData.DATATYPE_CUBE, display);
+        Network.getInstance().send(NetworkData.DATATYPE_CUBE, display + "," + faces);
     }
 
     public void rotateY(int dir, int iterations, boolean immediateReturn) {
@@ -346,7 +375,9 @@ public class Cube {
 
             System.out.println(faces);
 
-            if(!isScanning) {
+            System.out.println(isScanning);
+
+            //if(!isScanning) {
 
                 if (dir == 0) {
                     stringBuilder.setCharAt(0, display.charAt(2));
@@ -399,12 +430,11 @@ public class Cube {
                         stringBuilder.setCharAt(4 * 9 + i, display.charAt(5 * 9 + i));
                         stringBuilder.setCharAt(2 * 9 + i, display.charAt(4 * 9 + i));
                     }
-                }
-            }
+                 }
+            //}
+            display = stringBuilder.toString();
+            sendCube();
         }
-
-        display = stringBuilder.toString();
-        sendCube();
     }
 
     public void rotateZ() {
@@ -425,7 +455,7 @@ public class Cube {
         faces = facesBuilder.toString();
         System.out.println(faces);
 
-        if(!isScanning) {
+       // if(!isScanning) {
             StringBuilder stringBuilder = new StringBuilder(display);
 
             stringBuilder.setCharAt(2*9 + 2, display.charAt(2*9 + 0));
@@ -495,7 +525,7 @@ public class Cube {
 
             display = stringBuilder.toString();
             sendCube();
-        }
+      //  }
     }
 
     public void rotateBottomWall(int dir, int multiplier) {
@@ -509,61 +539,65 @@ public class Cube {
 
         StringBuilder stringBuilder = new StringBuilder(display);
 
+        for(int i=0; i<multiplier; i++) {
 
-        if(dir == 0) {
-            stringBuilder.setCharAt(3*9 + 2, display.charAt(3*9 + 0));
-            stringBuilder.setCharAt(3*9 + 5, display.charAt(3*9 + 1));
-            stringBuilder.setCharAt(3*9 + 8, display.charAt(3*9 + 2));
-            stringBuilder.setCharAt(3*9 + 1, display.charAt(3*9 + 3));
-            stringBuilder.setCharAt(3*9 + 7, display.charAt(3*9 + 5));
-            stringBuilder.setCharAt(3*9 + 0, display.charAt(3*9 + 6));
-            stringBuilder.setCharAt(3*9 + 3, display.charAt(3*9 + 7));
-            stringBuilder.setCharAt(3*9 + 6, display.charAt(3*9 + 8));
+            if (dir == 0) {
+                stringBuilder.setCharAt(3 * 9 + 2, display.charAt(3 * 9 + 0));
+                stringBuilder.setCharAt(3 * 9 + 5, display.charAt(3 * 9 + 1));
+                stringBuilder.setCharAt(3 * 9 + 8, display.charAt(3 * 9 + 2));
+                stringBuilder.setCharAt(3 * 9 + 1, display.charAt(3 * 9 + 3));
+                stringBuilder.setCharAt(3 * 9 + 7, display.charAt(3 * 9 + 5));
+                stringBuilder.setCharAt(3 * 9 + 0, display.charAt(3 * 9 + 6));
+                stringBuilder.setCharAt(3 * 9 + 3, display.charAt(3 * 9 + 7));
+                stringBuilder.setCharAt(3 * 9 + 6, display.charAt(3 * 9 + 8));
 
-            stringBuilder.setCharAt(2*9 + 2, display.charAt(1*9 + 2));
-            stringBuilder.setCharAt(2*9 + 5, display.charAt(1*9 + 5));
-            stringBuilder.setCharAt(2*9 + 8, display.charAt(1*9 + 8));
+                stringBuilder.setCharAt(2 * 9 + 2, display.charAt(1 * 9 + 2));
+                stringBuilder.setCharAt(2 * 9 + 5, display.charAt(1 * 9 + 5));
+                stringBuilder.setCharAt(2 * 9 + 8, display.charAt(1 * 9 + 8));
 
-            stringBuilder.setCharAt(1*9 + 2, display.charAt(5*9 + 2));
-            stringBuilder.setCharAt(1*9 + 5, display.charAt(5*9 + 5));
-            stringBuilder.setCharAt(1*9 + 8, display.charAt(5*9 + 8));
+                stringBuilder.setCharAt(1 * 9 + 2, display.charAt(5 * 9 + 2));
+                stringBuilder.setCharAt(1 * 9 + 5, display.charAt(5 * 9 + 5));
+                stringBuilder.setCharAt(1 * 9 + 8, display.charAt(5 * 9 + 8));
 
-            stringBuilder.setCharAt(5*9 + 2, display.charAt(4*9 + 2));
-            stringBuilder.setCharAt(5*9 + 5, display.charAt(4*9 + 5));
-            stringBuilder.setCharAt(5*9 + 8, display.charAt(4*9 + 8));
+                stringBuilder.setCharAt(5 * 9 + 2, display.charAt(4 * 9 + 2));
+                stringBuilder.setCharAt(5 * 9 + 5, display.charAt(4 * 9 + 5));
+                stringBuilder.setCharAt(5 * 9 + 8, display.charAt(4 * 9 + 8));
 
-            stringBuilder.setCharAt(4*9 + 2, display.charAt(2*9 + 2));
-            stringBuilder.setCharAt(4*9 + 5, display.charAt(2*9 + 5));
-            stringBuilder.setCharAt(4*9 + 8, display.charAt(2*9 + 8));
-        } else {
-            stringBuilder.setCharAt(3*9 + 0, display.charAt(3*9 + 2));
-            stringBuilder.setCharAt(3*9 + 1, display.charAt(3*9 + 5));
-            stringBuilder.setCharAt(3*9 + 2, display.charAt(3*9 + 8));
-            stringBuilder.setCharAt(3*9 + 3, display.charAt(3*9 + 1));
-            stringBuilder.setCharAt(3*9 + 5, display.charAt(3*9 + 7));
-            stringBuilder.setCharAt(3*9 + 6, display.charAt(3*9 + 0));
-            stringBuilder.setCharAt(3*9 + 7, display.charAt(3*9 + 3));
-            stringBuilder.setCharAt(3*9 + 8, display.charAt(3*9 + 6));
+                stringBuilder.setCharAt(4 * 9 + 2, display.charAt(2 * 9 + 2));
+                stringBuilder.setCharAt(4 * 9 + 5, display.charAt(2 * 9 + 5));
+                stringBuilder.setCharAt(4 * 9 + 8, display.charAt(2 * 9 + 8));
+            } else {
+                stringBuilder.setCharAt(3 * 9 + 0, display.charAt(3 * 9 + 2));
+                stringBuilder.setCharAt(3 * 9 + 1, display.charAt(3 * 9 + 5));
+                stringBuilder.setCharAt(3 * 9 + 2, display.charAt(3 * 9 + 8));
+                stringBuilder.setCharAt(3 * 9 + 3, display.charAt(3 * 9 + 1));
+                stringBuilder.setCharAt(3 * 9 + 5, display.charAt(3 * 9 + 7));
+                stringBuilder.setCharAt(3 * 9 + 6, display.charAt(3 * 9 + 0));
+                stringBuilder.setCharAt(3 * 9 + 7, display.charAt(3 * 9 + 3));
+                stringBuilder.setCharAt(3 * 9 + 8, display.charAt(3 * 9 + 6));
 
-            stringBuilder.setCharAt(2*9 + 2, display.charAt(4*9 + 2));
-            stringBuilder.setCharAt(2*9 + 5, display.charAt(4*9 + 5));
-            stringBuilder.setCharAt(2*9 + 8, display.charAt(4*9 + 8));
+                stringBuilder.setCharAt(2 * 9 + 2, display.charAt(4 * 9 + 2));
+                stringBuilder.setCharAt(2 * 9 + 5, display.charAt(4 * 9 + 5));
+                stringBuilder.setCharAt(2 * 9 + 8, display.charAt(4 * 9 + 8));
 
-            stringBuilder.setCharAt(4*9 + 2, display.charAt(5*9 + 2));
-            stringBuilder.setCharAt(4*9 + 5, display.charAt(5*9 + 5));
-            stringBuilder.setCharAt(4*9 + 8, display.charAt(5*9 + 8));
+                stringBuilder.setCharAt(4 * 9 + 2, display.charAt(5 * 9 + 2));
+                stringBuilder.setCharAt(4 * 9 + 5, display.charAt(5 * 9 + 5));
+                stringBuilder.setCharAt(4 * 9 + 8, display.charAt(5 * 9 + 8));
 
-            stringBuilder.setCharAt(5*9 + 2, display.charAt(1*9 + 2));
-            stringBuilder.setCharAt(5*9 + 5, display.charAt(1*9 + 5));
-            stringBuilder.setCharAt(5*9 + 8, display.charAt(1*9 + 8));
+                stringBuilder.setCharAt(5 * 9 + 2, display.charAt(1 * 9 + 2));
+                stringBuilder.setCharAt(5 * 9 + 5, display.charAt(1 * 9 + 5));
+                stringBuilder.setCharAt(5 * 9 + 8, display.charAt(1 * 9 + 8));
 
-            stringBuilder.setCharAt(1*9 + 2, display.charAt(2*9 + 2));
-            stringBuilder.setCharAt(1*9 + 5, display.charAt(2*9 + 5));
-            stringBuilder.setCharAt(1*9 + 8, display.charAt(2*9 + 8));
+                stringBuilder.setCharAt(1 * 9 + 2, display.charAt(2 * 9 + 2));
+                stringBuilder.setCharAt(1 * 9 + 5, display.charAt(2 * 9 + 5));
+                stringBuilder.setCharAt(1 * 9 + 8, display.charAt(2 * 9 + 8));
+            }
+            display = stringBuilder.toString();
+            sendCube();
+
         }
 
-        display = stringBuilder.toString();
-        sendCube();
+
 
     }
 

@@ -14,6 +14,8 @@ public class Solver {
     private final static int METHOD_CLOSEST_STATIC = 10;
     private final static int METHOD_CLOSEST_CENTER = 11;
 
+    Cube cube;
+
     enum Hue {
         white(85.677f), orange(-24.532f), yellow(67.052f), red(8.828f), green(150.763f), blue(196.964f);
 
@@ -26,10 +28,43 @@ public class Solver {
         }
     }
 
-    public Solver() {
+    public Solver(Cube cube) {
+        this.cube = cube;
     }
 
-    String generateCube(float[][] raw) {
+    String verifyAndFix(float[][] raw) {
+        Logger.logAndSend("Verifying");
+        String cube = generateCube(raw);
+        return cube;
+    }
+
+    String solve(String solverString) {
+
+        if(!Network.getInstance().isClientConnected()) {
+//            Network.getInstance().send(NetworkData.DATATYPE_COMMAND, );
+
+        } else {
+
+            Search search = new Search();
+
+            int mask = 0;
+            mask |= false ? Search.USE_SEPARATOR : 0;
+            mask |= false ? Search.INVERSE_SOLUTION : 0;
+            mask |= true ? Search.APPEND_LENGTH : 0;
+
+            String out;
+
+            Logger.logAndSend(false, "Solving... ");
+            out = search.solution(solverString, 21, 100, 0, mask);
+            if (!out.contains("Error")) {
+                //Logger.logAndSend("success");
+                return out;
+            }
+        }
+        return null;
+    }
+
+    private String generateCube(float[][] raw) {
 
         float[][] modifiers = {{0.95f,1f,1f}, {1f,1f,1f}};
         int[] color = new int[54];
@@ -48,7 +83,7 @@ public class Solver {
 
             occurrences = new int[6];
 
-            Logger.logAndSend(String.format("   (%.2f, %.2f, %.2f) closest center...   ",
+            Logger.logAndSend(false, String.format("   (%.2f, %.2f, %.2f) closest center...   ",
                     modifiers[k][0],
                     modifiers[k][1],
                     modifiers[k][2]));
@@ -72,13 +107,13 @@ public class Solver {
                 occurrences[closestInd]++;
             }
 
-            if ((corrected = verify(color, occurrences)) != null)
+            if ((corrected = verifyAndFix(color, occurrences)) != null)
                 return toSolverString(corrected);
 
 
             occurrences = new int[6];
 
-            Logger.logAndSend(String.format("   (%.2f, %.2f, %.2f) closest static...   ",
+            Logger.logAndSend(false, String.format("\tfail\n   (%.2f, %.2f, %.2f) closest static...   ",
                     modifiers[k][0],
                     modifiers[k][1],
                     modifiers[k][2]));
@@ -103,7 +138,7 @@ public class Solver {
 
             }
 
-            if ((corrected = verify(color, occurrences)) != null)
+            if ((corrected = verifyAndFix(color, occurrences)) != null)
                 return toSolverString(corrected);
 
         }
@@ -112,21 +147,34 @@ public class Solver {
 
     }
 
-    private int[] verify(int[] color, int[] occurrences) {
+    private int[] verifyAndFix(int[] color, int[] occurrences) {
 
         Search search = new Search();
 
-        if(search.verify(toSolverString(color)) == 0)
+        if(search.verify(toSolverString(color)) == 0) {
+            Logger.logAndSend(true, "correct");
             return color;
+        }
+
 
         int completeColors = 0;
         int over = -1;
+        int overCount = 0;
         int under = -1;
+        int underCount = 0;
         for(int i=0; i<6; i++) {
             if(occurrences[i] == 9) completeColors++;
-            else if(occurrences[i] > 9) over = i;
-            else under = i;
+            else if(occurrences[i] > 9) {
+                over = i;
+                overCount = occurrences[i];
+            }
+            else {
+                under = i;
+                underCount = occurrences[i];
+            }
         }
+
+        System.out.println("Complete colors: " + completeColors + ", over: " + overCount + ", under: " + underCount);
 
         if(completeColors == 4) {
 
@@ -136,10 +184,11 @@ public class Solver {
                 if(color[j] == over) {
                     int[] colorCopy = Arrays.copyOf(color, color.length);
                     colorCopy[j] = under;
-                    int res = search.verify(toSolverString(colorCopy));
-                    System.out.println(j + " = " + res);
-                    if(res == 0) {
-                        Logger.logAndSend(false, "altered scan...   ");
+                    int result = search.verify(toSolverString(colorCopy));
+                    System.out.println(j + " = " + result);
+                    if(result == 0) {
+
+                        Logger.logAndSend(true, "altered scan...   ");
                         return colorCopy;
                     }
                 }
@@ -276,39 +325,6 @@ public class Solver {
 
     private float[] calculateHue(float[][] raw) {
         return calculateHue(raw, 1f, 1f, 1f);
-    }
-
-    String solve(float[][] raw) {
-
-        if(!Network.getInstance().isClientConnected()) {
-//            Network.getInstance().send(NetworkData.DATATYPE_COMMAND, );
-
-        } else {
-
-            Logger.logAndSend("Solving");
-
-            Search search = new Search();
-
-
-            int mask = 0;
-            mask |= false ? Search.USE_SEPARATOR : 0;
-            mask |= false ? Search.INVERSE_SOLUTION : 0;
-            mask |= true ? Search.APPEND_LENGTH : 0;
-
-            String out;
-
-
-            out = search.solution(generateCube(raw), 21, 100, 0, mask);
-            if (!out.contains("Error")) {
-                Logger.logAndSend("success");
-                return out;
-            }
-            Logger.logAndSend("fail");
-
-        }
-
-
-        return null;
     }
 
 }

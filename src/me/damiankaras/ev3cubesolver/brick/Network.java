@@ -101,7 +101,7 @@ public class Network {
 
     void send(String prefix, String str) {
         if(out != null) {
-            System.out.println("Sending: " + prefix + "/" + str);
+//            System.out.println("Sending: " + prefix + "/" + str);
             out.println(prefix + "/" + str);
         }
         else {
