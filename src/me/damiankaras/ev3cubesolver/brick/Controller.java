@@ -103,7 +103,6 @@ public class Controller {
         sensorMotor.resetPosition();
         armMotor.resetPosition();
         basketMotor.resetPosition();
-        cube.close();
         cube = new Cube();
     }
 }

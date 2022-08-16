@@ -32,7 +32,7 @@ public class Solver {
         this.cube = cube;
     }
 
-    String verifyAndFix(float[][] raw) {
+    String verify(float[][] raw) {
         Logger.logAndSend("Verifying");
         String cube = generateCube(raw);
         return cube;
@@ -67,7 +67,7 @@ public class Solver {
     private String generateCube(float[][] raw) {
 
         float[][] modifiers = {{0.95f,1f,1f}, {1f,1f,1f}};
-        int[] color = new int[54];
+        int[] colors = new int[54];
 
         float closestValue;
         int closestInd;
@@ -75,45 +75,53 @@ public class Solver {
         int[] occurrences;
         float[] hue;
 
-        int[] corrected;
+        int[] correctedColors;
+
+
+
 
         for(int k=0; k<modifiers.length; k++) {
 
             hue = calculateHue(raw, modifiers[k][0], modifiers[k][1], modifiers[k][2]);
-
+//
+//            occurrences = new int[6];
+//
+//            Logger.logAndSend(false, String.format("   (%.2f, %.2f, %.2f) closest center...   ",
+//                    modifiers[k][0],
+//                    modifiers[k][1],
+//                    modifiers[k][2]));
+//
+//            for (int i = 0; i < 54; i++) {
+//
+//                closestValue = 360;
+//                closestInd = 0;
+//
+//                for (int j = 0; j < 6; j++) {
+//                    diff = Math.abs(hue[i] - hue[j * 9]);
+//
+//                    if (diff < closestValue) {
+//                        closestValue = diff;
+//                        closestInd = j;
+//                    }
+//                }
+//
+//                colors[i] = closestInd;
+//
+//                occurrences[closestInd]++;
+//            }
+//
+//
+//            if ((correctedColors = verifyAndFix(colors, occurrences)) != null) {
+//                cube.setColors(correctedColors);
+//                return toSolverString(correctedColors);
+//            }
+//
+//
+//
             occurrences = new int[6];
-
-            Logger.logAndSend(false, String.format("   (%.2f, %.2f, %.2f) closest center...   ",
-                    modifiers[k][0],
-                    modifiers[k][1],
-                    modifiers[k][2]));
-
-            for (int i = 0; i < 54; i++) {
-
-                closestValue = 360;
-                closestInd = 0;
-
-                for (int j = 0; j < 6; j++) {
-                    diff = Math.abs(hue[i] - hue[j * 9]);
-
-                    if (diff < closestValue) {
-                        closestValue = diff;
-                        closestInd = j;
-                    }
-                }
-
-                color[i] = closestInd;
-
-                occurrences[closestInd]++;
-            }
-
-            if ((corrected = verifyAndFix(color, occurrences)) != null)
-                return toSolverString(corrected);
-
-
-            occurrences = new int[6];
-
-            Logger.logAndSend(false, String.format("\tfail\n   (%.2f, %.2f, %.2f) closest static...   ",
+////
+//            Logger.logAndSend("fail");
+            Logger.logAndSend(false, String.format("   (%.2f, %.2f, %.2f) closest static...    ",
                     modifiers[k][0],
                     modifiers[k][1],
                     modifiers[k][2]));
@@ -132,15 +140,17 @@ public class Solver {
                     }
                 }
 
-                color[i] = closestInd;
+                colors[i] = closestInd;
 
                 occurrences[closestInd]++;
 
             }
 
-            if ((corrected = verifyAndFix(color, occurrences)) != null)
-                return toSolverString(corrected);
-
+            if ((correctedColors = verifyAndFix(colors, occurrences)) != null) {
+                cube.setColors(correctedColors);
+                return toSolverString(correctedColors);
+            }
+            Logger.logAndSend("fail");
         }
 
         return null;
@@ -175,6 +185,7 @@ public class Solver {
         }
 
         System.out.println("Complete colors: " + completeColors + ", over: " + overCount + ", under: " + underCount);
+        System.out.println(Arrays.toString(color));
 
         if(completeColors == 4) {
 
@@ -187,8 +198,8 @@ public class Solver {
                     int result = search.verify(toSolverString(colorCopy));
                     System.out.println(j + " = " + result);
                     if(result == 0) {
-
                         Logger.logAndSend(true, "altered scan...   ");
+                        System.out.println(Arrays.toString(colorCopy));
                         return colorCopy;
                     }
                 }
@@ -197,7 +208,7 @@ public class Solver {
         return null;
     }
 
-    private String toSolverString(int[] color) {
+    public static String toSolverString(int[] color) {
         StringBuffer s = new StringBuffer(54);
 
         for (int i = 0; i<54; i++)
@@ -280,19 +291,32 @@ public class Solver {
 //                    case 4: s.setCharAt(9 * targetFace + targetFacelet, 'D');break;
 //                    case 5: s.setCharAt(9 * targetFace + targetFacelet, 'U');break;
 //                }
-//
-                switch (color[9 * i + j]) {
-                    case 0: s.setCharAt(9 * targetFace + targetFacelet, 'U');break;
-                    case 1: s.setCharAt(9 * targetFace + targetFacelet, 'R');break;
-                    case 2: s.setCharAt(9 * targetFace + targetFacelet, 'D');break;
-                    case 3: s.setCharAt(9 * targetFace + targetFacelet, 'L');break;
-                    case 4: s.setCharAt(9 * targetFace + targetFacelet, 'B');break;
-                    case 5: s.setCharAt(9 * targetFace + targetFacelet, 'F');break;
+
+                for(int k=0; k<6; k++) {
+                    if (color[9 * i + j] == color[9*k])
+                        switch (9*k) {
+                            case 0: s.setCharAt(9 * targetFace + targetFacelet, 'U');break;
+                            case 9: s.setCharAt(9 * targetFace + targetFacelet, 'R');break;
+                            case 9*2: s.setCharAt(9 * targetFace + targetFacelet, 'D');break;
+                            case 9*3: s.setCharAt(9 * targetFace + targetFacelet, 'L');break;
+                            case 9*4: s.setCharAt(9 * targetFace + targetFacelet, 'B');break;
+                            case 9*5: s.setCharAt(9 * targetFace + targetFacelet, 'F');break;
+                        }
                 }
+
+//                switch (color[9 * i + j]) {
+//                    case 0: s.setCharAt(9 * targetFace + targetFacelet, 'U');break;
+//                    case 1: s.setCharAt(9 * targetFace + targetFacelet, 'R');break;
+//                    case 2: s.setCharAt(9 * targetFace + targetFacelet, 'D');break;
+//                    case 3: s.setCharAt(9 * targetFace + targetFacelet, 'L');break;
+//                    case 4: s.setCharAt(9 * targetFace + targetFacelet, 'B');break;
+//                    case 5: s.setCharAt(9 * targetFace + targetFacelet, 'F');break;
+//                }
 
 
             }
         }
+        System.out.println(s.toString());
         return s.toString();
     }
 

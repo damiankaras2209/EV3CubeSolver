@@ -32,8 +32,6 @@ public class ColorScanner {
     StringBuffer s;
 
     ColorScanner(Cube cube) {
-
-
         this.cube = cube;
         
         motorManager = MotorManager.getInstance();
@@ -42,12 +40,17 @@ public class ColorScanner {
         armMotor = motorManager.getArmMotor();
         sensorMotor = motorManager.getSensorMotor();
 
+    }
+
+    void sensorStart() {
         ev3ColorSensor = new EV3ColorSensor(SensorPort.S2);
         sensorMode = ev3ColorSensor.getRGBMode();
     }
 
-    void close() {
+    void sensorStop() {
         ev3ColorSensor.close();
+        ev3ColorSensor = null;
+        sensorMode = null;
     }
 
     float[][] scan() {
@@ -64,11 +67,15 @@ public class ColorScanner {
 //            }
 //        }).start();
 
+        sensorStart();
+
         samples = new float[54][sensorMode.sampleSize()];
         samplesTaken = 0;
 
         basketMotor.resetTacho();
         basketMotor.setSpeed(350);
+
+
 
         scanFace();
         cube.rotateZ();
@@ -90,13 +97,11 @@ public class ColorScanner {
 
 
 
-        for(int i=0; i<samplesTaken; i++) {
-            System.out.println(String.format("%.8f,%.8f,%.8f", samples[i][0], samples[i][1], samples[i][2]));
-        }
+
 
         sensorMotor.setPosition(SensorMotor.IDLE, true);
-        ev3ColorSensor.close();
 
+        sensorStop();
         return samples;
     }
 
@@ -141,7 +146,7 @@ public class ColorScanner {
 
         System.out.println("Sample " + samplesTaken/9 + "," + (samplesTaken%9) + " at " + basketMotor.getTacho() + "deg" /*+ String.format("#%02X%02X%02X", (int)(samples[samplesTaken][0]*256), (int)(samples[samplesTaken][1]*256), (int)(samples[samplesTaken][2]*256))*/);
 
-        cube.setRaw(samplesTaken, samples[samplesTaken]);
+        cube.setRaw(samplesTaken%9, samples[samplesTaken]);
 
         samplesTaken++;
     }
