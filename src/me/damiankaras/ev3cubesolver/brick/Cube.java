@@ -74,6 +74,7 @@ public class Cube {
     void fillClean() {
         for (int i=0; i<54; i++)
             colors[i] = 6;
+        faces = "ULFRBD";
         sendCube();
     }
 
