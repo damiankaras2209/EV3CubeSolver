@@ -93,10 +93,6 @@ public class ColorScanner {
 
         basketMotor.setSpeed(BasketMotor.DEFAULT_SPEED);
 
-//        correctSamples();
-
-
-
 
 
         sensorMotor.setPosition(SensorMotor.IDLE, true);
@@ -111,40 +107,31 @@ public class ColorScanner {
         takeSample();
         sensorMotor.setPosition(SensorMotor.EDGE, false);
         takeSample();
+        sensorMotor.setPosition(SensorMotor.CORNER, true);
 
-//        cube.rotateY(Cube.CW, 4, true);
         basketMotor.rotate(BasketMotor.CW, 360, true);
 
-        for (int i=0; i<8; i++) {
-            final int finalI = i;
-
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-                    if(finalI != 0) takeSample();
-                    if (finalI != 7)
-                        sensorMotor.setPosition(finalI % 2 == 0 ? SensorMotor.CORNER : SensorMotor.EDGE, true);
-//                }
-//            }).start();
-
-            if (finalI != 7)
-                while (basketMotor.getPos() < (i+1) * 45 + POSITION_OFFSET) {
-//                    Delay.msDelay(1);
+        for (int i=0; i<7; i++) {
+//            System.out.println("Tacho: " + basketMotor.getPos());
+            while (basketMotor.getPos() < (i+1) * 45 + POSITION_OFFSET) {
+                Delay.msDelay(1);
 //                System.out.println("Tacho: " + basketMotor.getPos());
-                }
+            }
+
+            takeSample();
+
+            if (i != 6)
+                sensorMotor.setPosition(i % 2 == 1 ? SensorMotor.CORNER : SensorMotor.EDGE, true);
 
         }
 
         sensorMotor.setPosition(SensorMotor.IDLE, false);
-
-
-//        System.out.println("End");
     }
 
     void takeSample() {
         sensorMode.fetchSample(samples[samplesTaken], 0);
 
-        System.out.println("Sample " + samplesTaken/9 + "," + (samplesTaken%9) + " at " + basketMotor.getTacho() + "deg" /*+ String.format("#%02X%02X%02X", (int)(samples[samplesTaken][0]*256), (int)(samples[samplesTaken][1]*256), (int)(samples[samplesTaken][2]*256))*/);
+        System.out.println("Sample " + samplesTaken/9 + "," + (samplesTaken%9) + " at " + basketMotor.getPos() + "deg and " + sensorMotor.getTachoCount() /*+ String.format("#%02X%02X%02X", (int)(samples[samplesTaken][0]*256), (int)(samples[samplesTaken][1]*256), (int)(samples[samplesTaken][2]*256))*/);
 
         cube.setRaw(samplesTaken%9, samples[samplesTaken]);
 

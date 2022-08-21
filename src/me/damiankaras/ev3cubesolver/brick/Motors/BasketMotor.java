@@ -63,6 +63,7 @@ public class BasketMotor extends EV3MediumRegulatedMotor {
     }
 
     public int getPos() {
-        return (int)(getPosition()/GEAR_RATIO + 0.5f);
+        int pos = (int)(getPosition()/GEAR_RATIO + 0.5f);
+        return pos >= 360 ? pos - 360 : pos;
     }
 }
