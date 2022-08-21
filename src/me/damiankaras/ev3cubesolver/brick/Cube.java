@@ -129,28 +129,22 @@ public class Cube {
                 else
                     Logger.logAndSend("fail");
 
-                System.out.println(solution);
-
-                StringBuilder s = new StringBuilder(solution.length());
-                s.insert(0, solution);
-                for(int i=0; i<solution.length(); i++) {
-                    switch(solution.charAt(i)) {
-                        case 'U': s.setCharAt(i, faces.charAt(0)); break;
-                        case 'L': s.setCharAt(i, faces.charAt(1)); break;
-                        case 'F': s.setCharAt(i, faces.charAt(2)); break;
-                        case 'R': s.setCharAt(i, faces.charAt(3)); break;
-                        case 'B': s.setCharAt(i, faces.charAt(4)); break;
-                        case 'D': s.setCharAt(i, faces.charAt(5)); break;
-                    }
-                }
-
-                solution = s.toString();
-
-                System.out.println(solution);
-
-//                String solution = solver.solve(TestScans.INORRECT_SCAN);
 
                 if(solution != null) {
+
+                    StringBuilder s = new StringBuilder(solution.length());
+                    s.insert(0, solution);
+                    for(int i=0; i<solution.length(); i++) {
+                        switch(solution.charAt(i)) {
+                            case 'U': s.setCharAt(i, faces.charAt(0)); break;
+                            case 'L': s.setCharAt(i, faces.charAt(1)); break;
+                            case 'F': s.setCharAt(i, faces.charAt(2)); break;
+                            case 'R': s.setCharAt(i, faces.charAt(3)); break;
+                            case 'B': s.setCharAt(i, faces.charAt(4)); break;
+                            case 'D': s.setCharAt(i, faces.charAt(5)); break;
+                        }
+                    }
+                    solution = s.toString();
 
                     solution = solution.substring(0, solution.indexOf('('));
                     int length = solution.length() / 3 + 1;
