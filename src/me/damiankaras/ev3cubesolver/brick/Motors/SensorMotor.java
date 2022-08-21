@@ -3,7 +3,7 @@ package me.damiankaras.ev3cubesolver.brick.Motors;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.MotorPort;
 
-public class SensorMotor extends EV3LargeRegulatedMotor {
+public class SensorMotor extends EV3LargeRegulatedMotor implements MotorInterface {
 
     public static final int IDLE = -400;
     public static final int CENTER = -785;
@@ -15,6 +15,23 @@ public class SensorMotor extends EV3LargeRegulatedMotor {
     
     SensorMotor() {
         super(MotorPort.C);
+    }
+
+    public void floatDelayed() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    try {
+                        wait(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (!isMoving())
+                        flt();
+                }
+            }
+        }).start();
     }
 
     public void resetPosition() {
@@ -36,7 +53,7 @@ public class SensorMotor extends EV3LargeRegulatedMotor {
 //        System.out.println("Max speed" + getMaxSpeed());
         setSpeed(getMaxSpeed());
         setStallThreshold(20, 500);
-
+        floatDelayed();
     }
 
     public void setPosition(int position, boolean immediateReturn) {

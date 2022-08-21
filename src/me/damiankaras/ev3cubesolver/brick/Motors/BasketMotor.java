@@ -3,18 +3,36 @@ package me.damiankaras.ev3cubesolver.brick.Motors;
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
 import lejos.hardware.port.MotorPort;
 
-public class BasketMotor extends EV3MediumRegulatedMotor {
+public class BasketMotor extends EV3MediumRegulatedMotor implements MotorInterface {
 
     public static final int DEFAULT_SPEED = 700;
+    public static final int FLOAT_DELAY = 1000;
+
+    public static final int CW = 0;
+    public static final int CCW = 1;
+    private static final int GEAR_RATIO = 3;
 
     BasketMotor() {
         super(MotorPort.B);
         setSpeed(DEFAULT_SPEED);
     }
 
-    public static final int CW = 0;
-    public static final int CCW = 1;
-    private static final int GEAR_RATIO = 3;
+    public void floatDelayed() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    try {
+                        wait(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (!isMoving())
+                        flt();
+                }
+            }
+        }).start();
+    }
 
     public void resetPosition() {
 
@@ -36,8 +54,6 @@ public class BasketMotor extends EV3MediumRegulatedMotor {
         setSpeed(DEFAULT_SPEED);
         resetTacho();
     }
-
-
 
     public void rotate(int dir) {
         rotate(dir, 90, false);

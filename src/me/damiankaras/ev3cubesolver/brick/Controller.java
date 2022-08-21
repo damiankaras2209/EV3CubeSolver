@@ -65,21 +65,29 @@ public class Controller {
                 break;
             case "release":
                 armMotor.release();
+                armMotor.floatDelayed();
                 break;
             case "rotatebottomCW":
                 cube.rotateBottomWall(Cube.CW, 1);
+                basketMotor.floatDelayed();
+                armMotor.floatDelayed();
                 break;
             case "rotatebottomCCW":
                 cube.rotateBottomWall(Cube.CCW, 1);
+                basketMotor.floatDelayed();
+                armMotor.floatDelayed();
                 break;
             case "rotateYCW":
                 cube.rotateY(Cube.CW, 1, false);
+                basketMotor.floatDelayed();
                 break;
             case "rotateYCCW":
                 cube.rotateY(Cube.CCW, 1, false);
+                basketMotor.floatDelayed();
                 break;
             case "rotateZ":
                 cube.rotateZ();
+                armMotor.floatDelayed();
                 break;
             case "testMove":
                 ArrayList<String> moves = new ArrayList<>();

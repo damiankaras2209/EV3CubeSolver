@@ -279,6 +279,8 @@ public class Cube {
             move(moves.get(0));
             moves.remove(0);
         }
+        basketMotor.floatDelayed();
+        armMotor.floatDelayed();
     }
 
     private void move(String move) {

@@ -91,11 +91,13 @@ public class ColorScanner {
         cube.rotateZ();
         scanFace();
 
+        basketMotor.floatDelayed();
         basketMotor.setSpeed(BasketMotor.DEFAULT_SPEED);
 
 
 
         sensorMotor.setPosition(SensorMotor.IDLE, true);
+        sensorMotor.floatDelayed();
 
         sensorStop();
         return samples;
