@@ -17,11 +17,11 @@ public class Cube {
     public static final char[] colorChars = {'W', 'O', 'Y', 'R', 'G', 'B', '-'};
     public static final short[] colorToDisplay = {4, 7, 6, 3, 0, 1, 2, 5, 8, 13, 14, 17, 16, 15, 12, 9, 10, 11, 31, 28, 29, 32, 35, 34, 33, 30, 27, 40, 39, 36, 37, 38, 41, 44, 43, 42, 49, 46, 47, 50, 53, 52, 51, 48, 45, 22, 19, 20, 23, 26, 25, 24, 21, 18};
     public static final short[] displayToColor = {4, 5, 6, 3, 0, 7, 2, 1, 8, 15, 16, 17, 14, 9, 10, 13, 12, 11, 53, 46, 47, 52, 45, 48, 51, 50, 49, 26, 19, 20, 25, 18, 21, 24, 23, 22, 29, 30, 31, 28, 27, 32, 35, 34, 33, 44, 37, 38, 43, 36, 39, 42, 41, 40};
-    public static final short[] rotateZ =        {9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 1, 2, 3, 4, 5, 6, 7, 8, 36, 39, 40, 41, 42, 43, 44, 37, 38, 45, 52, 53, 46, 47, 48, 49, 50, 51};
-    public static final short[] rotateYCW =      {0, 3, 4, 5, 6, 7, 8, 1, 2, 36, 39, 40, 41, 42, 43, 44, 37, 38, 18, 25, 26, 19, 20, 21, 22, 23, 24, 45, 52, 53, 46, 47, 48, 49, 50, 51, 27, 30, 31, 32, 33, 34, 35, 28, 29, 9, 16, 17, 10, 11, 12, 13, 14, 15};
-    public static final short[] rotateYCCW =     {0, 7, 8, 1, 2, 3, 4, 5, 6, 45, 48, 49, 50, 51, 52, 53, 46, 47, 18, 21, 22, 23, 24, 25, 26, 19, 20, 36, 43, 44, 37, 38, 39, 40, 41, 42, 9, 16, 17, 10, 11, 12, 13, 14, 15, 27, 30, 31, 32, 33, 34, 35, 28, 29};
-    public static final short[] bottomCW =       {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 39, 40, 12, 13, 14, 15, 16, 38, 18, 25, 26, 19, 20, 21, 22, 23, 24, 27, 28, 29, 30, 47, 48, 49, 34, 35, 36, 37, 31, 32, 33, 41, 42, 43, 44, 45, 46, 17, 10, 11, 50, 51, 52, 53};
-    public static final short[] bottomCCW =      {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 48, 49, 12, 13, 14, 15, 16, 47, 18, 21, 22, 23, 24, 25, 26, 19, 20, 27, 28, 29, 30, 38, 39, 40, 34, 35, 36, 37, 17, 10, 11, 41, 42, 43, 44, 45, 46, 31, 32, 33, 50, 51, 52, 53};
+    public static final short[] rotateColorZ =        {9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 1, 2, 3, 4, 5, 6, 7, 8, 36, 39, 40, 41, 42, 43, 44, 37, 38, 45, 52, 53, 46, 47, 48, 49, 50, 51};
+    public static final short[] rotateColorY_CW =      {0, 3, 4, 5, 6, 7, 8, 1, 2, 36, 39, 40, 41, 42, 43, 44, 37, 38, 18, 25, 26, 19, 20, 21, 22, 23, 24, 45, 52, 53, 46, 47, 48, 49, 50, 51, 27, 30, 31, 32, 33, 34, 35, 28, 29, 9, 16, 17, 10, 11, 12, 13, 14, 15};
+    public static final short[] rotateColorY_CCW =     {0, 7, 8, 1, 2, 3, 4, 5, 6, 45, 48, 49, 50, 51, 52, 53, 46, 47, 18, 21, 22, 23, 24, 25, 26, 19, 20, 36, 43, 44, 37, 38, 39, 40, 41, 42, 9, 16, 17, 10, 11, 12, 13, 14, 15, 27, 30, 31, 32, 33, 34, 35, 28, 29};
+    public static final short[] rotateColorD_CW =       {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 39, 40, 12, 13, 14, 15, 16, 38, 18, 25, 26, 19, 20, 21, 22, 23, 24, 27, 28, 29, 30, 47, 48, 49, 34, 35, 36, 37, 31, 32, 33, 41, 42, 43, 44, 45, 46, 17, 10, 11, 50, 51, 52, 53};
+    public static final short[] rotateColorD_CCW =      {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 48, 49, 12, 13, 14, 15, 16, 47, 18, 21, 22, 23, 24, 25, 26, 19, 20, 27, 28, 29, 30, 38, 39, 40, 34, 35, 36, 37, 17, 10, 11, 41, 42, 43, 44, 45, 46, 31, 32, 33, 50, 51, 52, 53};
 
 
 
@@ -351,15 +351,15 @@ public class Cube {
 
             if (dir == CW)
                 for (int i = 0; i < 54; i++) {
-                    colors[i] = colorsCopy[rotateYCW[i]];
+                    colors[i] = colorsCopy[rotateColorY_CW[i]];
                     for (int j = 0; j < 3; j++)
-                        raw[i][j] = rawCopy[rotateYCW[i]][j];
+                        raw[i][j] = rawCopy[rotateColorY_CW[i]][j];
                 }
             else
                 for (int i = 0; i < 54; i++) {
-                    colors[i] = colorsCopy[rotateYCCW[i]];
+                    colors[i] = colorsCopy[rotateColorY_CCW[i]];
                     for (int j = 0; j < 3; j++)
-                        raw[i][j] = rawCopy[rotateYCCW[i]][j];
+                        raw[i][j] = rawCopy[rotateColorY_CCW[i]][j];
                 }
 
 
@@ -392,9 +392,9 @@ public class Cube {
                 rawCopy[i][j] = raw[i][j];
 
         for(int i=0; i<54; i++) {
-            colors[i] = colorsCopy[rotateZ[i]];
+            colors[i] = colorsCopy[rotateColorZ[i]];
             for(int j=0; j<3; j++)
-                raw[i][j] = rawCopy[rotateZ[i]][j];
+                raw[i][j] = rawCopy[rotateColorZ[i]][j];
     }
 
         sendCube();
@@ -418,15 +418,15 @@ public class Cube {
 
             if (dir == CW)
                 for (int i = 0; i < 54; i++) {
-                    colors[i] = colorsCopy[bottomCW[i]];
+                    colors[i] = colorsCopy[rotateColorD_CW[i]];
                     for (int j = 0; j < 3; j++)
-                        raw[i][j] = rawCopy[bottomCW[i]][j];
+                        raw[i][j] = rawCopy[rotateColorD_CW[i]][j];
                 }
             else
                 for (int i = 0; i < 54; i++) {
-                    colors[i] = colorsCopy[bottomCCW[i]];
+                    colors[i] = colorsCopy[rotateColorD_CCW[i]];
                     for (int j = 0; j < 3; j++)
-                        raw[i][j] = rawCopy[bottomCCW[i]][j];
+                        raw[i][j] = rawCopy[rotateColorD_CCW[i]][j];
                 }
 
         }
