@@ -32,9 +32,9 @@ public class Solver {
         this.cube = cube;
     }
 
-    String verify(float[][] raw) {
+    int[] verify(float[][] raw) {
         Logger.logAndSend("Verifying");
-        String cube = generateCube(raw);
+        int[] cube = generateCube(raw);
         return cube;
     }
 
@@ -64,7 +64,7 @@ public class Solver {
         return null;
     }
 
-    private String generateCube(float[][] raw) {
+    private int[] generateCube(float[][] raw) {
 
         float[][] modifiers = {{0.95f,1f,1f}, {1f,1f,1f}};
         int[] colors = new int[54];
@@ -147,8 +147,7 @@ public class Solver {
             }
 
             if ((correctedColors = verifyAndFix(colors, occurrences)) != null) {
-                cube.setColors(correctedColors);
-                return toSolverString(correctedColors);
+                return correctedColors;
             }
             Logger.logAndSend("fail");
         }

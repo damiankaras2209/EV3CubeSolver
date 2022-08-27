@@ -41,6 +41,7 @@ public class Cube {
 
     private boolean isSolving = false;
     private boolean isScanning = false;
+    private boolean isScanGood = false;
 
     Cube() {
         raw = new float[54][3];
@@ -75,31 +76,15 @@ public class Cube {
         for (int i=0; i<54; i++)
             colors[i] = 6;
         faces = "ULFRBD";
+        isScanGood = false;
         sendCube();
     }
 
+    boolean isBusy() {
+        return isSolving || isScanning;
+    }
+
     void solve() {
-//        Logger.logAndSend("Solving");
-
-
-//        isScanning = false;
-//        display = "WWWWWWOOGOOYBBOBBOBROBRBWWBBYYRYYRYYRGRRGRRGWYYGGOGGOG";
-//        sendCube();
-//
-//        faces = "FRULDB";
-//
-//        isScanning = false;
-//        String solution = "D  R  U' (3f)";
-//        solution = solution.substring(0, solution.indexOf('(')-1);
-//        ArrayList<String> moves = new ArrayList<>(Arrays.asList(solution.split("  ")));
-//        System.out.println(moves);
-//        while (moves.size() > 0) {
-//            move(moves.get(0));
-//            moves.remove(0);
-//        }
-//        sendCube();
-
-//        scan();
 
         startTime = System.currentTimeMillis();
 
@@ -111,21 +96,13 @@ public class Cube {
             @Override
             public void run() {
 
-                scan();
+                if(!isScanGood)
+                    scan();
 
-                System.out.println(Arrays.toString(colors));
-
-                String solverString = solver.verify(raw);
-//                String solverString = solver.verify(TestScans.SOLVED_U_CLOSEST);
-
-                System.out.println(Arrays.toString(colors));
-
-
-                System.out.println(solverString);
 
                 String solution = null;
-                if(solverString != null)
-                    solution = solver.solve(solverString);
+                if(isScanGood)
+                    solution = solver.solve(Solver.toSolverString(colors));
                 else
                     Logger.logAndSend("fail");
 
@@ -166,10 +143,10 @@ public class Cube {
                             (float) (System.currentTimeMillis() - solutionTime) / 1000,
                             (float) (System.currentTimeMillis() - startTime) / 1000));
 
-                    //rotateBottomWall(CW, 4);
                 } else {
                     Logger.logAndSend("All methods failed");
                 }
+                isScanGood = false;
             }
         });
         t.start();
@@ -200,6 +177,15 @@ public class Cube {
         Logger.logAndSend(String.format("Scanning completed in %.2fs", (float)(scanTime - startTime)/1000));
         for(int i=0; i<raw.length; i++) {
             System.out.println(String.format("%.8f,%.8f,%.8f", raw[i][0], raw[i][1], raw[i][2]));
+        }
+        colors = (new Solver(this)).verify(raw);
+        if(colors != null) {
+            isScanGood = true;
+            sendCube();
+        } else {
+            isScanGood = false;
+            colors = new int[54];
+            fillClean();
         }
         isScanning = false;
     }

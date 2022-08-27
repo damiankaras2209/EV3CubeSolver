@@ -45,8 +45,11 @@ public class Controller {
 
     public void executeCommand(String cmd) {
         switch (cmd) {
+            case "scan":
+                if(!cube.isBusy()) cube.scan();
+                break;
             case "solve":
-                if(!cube.isSolving()) cube.solve();
+                if(!cube.isBusy()) cube.solve();
                 break;
             case "reset":
                 reset();
