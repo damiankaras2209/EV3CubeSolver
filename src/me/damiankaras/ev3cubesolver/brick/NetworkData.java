@@ -4,6 +4,8 @@ public class NetworkData {
 
     public static final String DATATYPE_CUBE = "CB";
     public static final String DATATYPE_COMMAND = "CMD";
+    public static final String DATATYPE_SOLVE = "SLV";
+    public static final String DATATYPE_SOLUTION = "SOL";
     public static final String DATATYPE_LOG = "L";
 
     private static NetworkData instance = new NetworkData();
@@ -30,6 +32,9 @@ public class NetworkData {
         switch(prefix) {
             case DATATYPE_COMMAND:
                 Controller.getInstance().executeCommand(data);
+                break;
+            case DATATYPE_SOLUTION:
+                Controller.getInstance().getCube().setNetworkSolution(data);
                 break;
         }
 

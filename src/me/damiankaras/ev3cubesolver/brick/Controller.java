@@ -106,8 +106,8 @@ public class Controller {
         }
     }
 
-    public void stop() {
-
+    public Cube getCube() {
+        return cube;
     }
 
     public void reset() {

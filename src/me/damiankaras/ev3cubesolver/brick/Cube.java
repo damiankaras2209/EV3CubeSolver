@@ -23,7 +23,7 @@ public class Cube {
     public static final short[] rotateColorD_CW =       {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 39, 40, 12, 13, 14, 15, 16, 38, 18, 25, 26, 19, 20, 21, 22, 23, 24, 27, 28, 29, 30, 47, 48, 49, 34, 35, 36, 37, 31, 32, 33, 41, 42, 43, 44, 45, 46, 17, 10, 11, 50, 51, 52, 53};
     public static final short[] rotateColorD_CCW =      {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 48, 49, 12, 13, 14, 15, 16, 47, 18, 21, 22, 23, 24, 25, 26, 19, 20, 27, 28, 29, 30, 38, 39, 40, 34, 35, 36, 37, 17, 10, 11, 41, 42, 43, 44, 45, 46, 31, 32, 33, 50, 51, 52, 53};
 
-
+    private static final int REMOTE_SOLUTION_TIMEOUT = 10*1000;
 
     MotorManager motorManager;
     BasketMotor basketMotor;
@@ -34,6 +34,7 @@ public class Cube {
     private float[][] raw;
     private int[] colors;
     private String faces = "ULFRBD";
+    private String networkSolution = "";
 
     private long startTime;
     private long scanTime;
@@ -84,6 +85,10 @@ public class Cube {
         return isSolving || isScanning;
     }
 
+    void setNetworkSolution(String s) {
+        networkSolution = s;
+    }
+
     void solve() {
 
         startTime = System.currentTimeMillis();
@@ -101,9 +106,36 @@ public class Cube {
 
 
                 String solution = null;
-                if(isScanGood)
-                    solution = solver.solve(Solver.toSolverString(colors));
-                else
+                if(isScanGood) {
+
+                    if (Network.getInstance().isClientConnected()) {
+                        Logger.logAndSend("Solving remotely");
+                        Network.getInstance().send(NetworkData.DATATYPE_SOLVE, Solver.toSolverString(colors));
+//                        Network.getInstance().send(NetworkData.DATATYPE_SOLVE, "FFRDULLLLDUFBRUBFUUDBLFRBBLDUUBDUFDRDBFRLFRLRDDLRBFBRU");
+
+                        long t = System.currentTimeMillis();
+
+                        synchronized (this) {
+                            while (networkSolution == null || System.currentTimeMillis() - t < REMOTE_SOLUTION_TIMEOUT) {
+                                try {
+                                    wait(500);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+
+                    }
+
+                    if(networkSolution.equals("error") || networkSolution.equals("")) {
+                        Logger.logAndSend("Remote solve timed out. Solving locally");
+                        solution = solver.solve(Solver.toSolverString(colors));
+                    } else
+                       solution = networkSolution;
+
+
+                } else
                     Logger.logAndSend("fail");
 
 
@@ -131,6 +163,7 @@ public class Cube {
                         moves.add(solution.substring(i * 3, (i + 1) * 3).trim());
 
                     solutionTime = System.currentTimeMillis();
+                    Logger.logAndSend(String.format("Solution: %s", solution));
                     Logger.logAndSend(String.format("Solution found in %.2fs (%d moves). Total time: %.2fs",
                             (float) (solutionTime - scanTime) / 1000,
                             moves.size(),
@@ -144,7 +177,7 @@ public class Cube {
                             (float) (System.currentTimeMillis() - startTime) / 1000));
 
                 } else {
-                    Logger.logAndSend("All methods failed");
+                    Logger.logAndSend("fail");
                 }
                 isScanGood = false;
             }
