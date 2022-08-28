@@ -314,7 +314,7 @@ public class Cube {
         int x = faces.indexOf(ch);
         switch (x) {
             case 0:
-                rotateZ();
+                rotateZ(true);
                 rotateZ(true);
                 break;
             case 1:
